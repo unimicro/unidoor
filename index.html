@@ -1,0 +1,95 @@
+<html>
+<head>
+    <title>Open garage door</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 0
+        }
+        .main_button {
+            border-radius: 50%;
+            border: 0;
+            background-color: green;
+            font-size: 17vmin;
+            width: 100vmin;
+            height: 100vmin;
+            margin: 0;
+        }
+        .main_button.active {
+            background-color: #ED4337;
+        }
+        .main_button[disabled] {
+            color: white;
+        }
+        .token {
+            width: 100vmin;
+            margin-top: 50px;
+        }
+    </style>
+    <script>
+    /* IE9+ ajax: ajax({url: '/', method: 'GET', data: '', headers: {key: 'value'}}) .done(...) .error(...).finally(...) */
+    !function(a){a.ajax=function(a){var b,c,d,e=new XMLHttpRequest;e.open(a.method||"GET",a.url,!0),e.onload=function(){e.status>=200&&e.status<400?b&&b(e.responseText,e):c&&c(new Error(e.responseText),e),d&&d(e)};for(var f in a.headers)a.headers.hasOwnProperty(f)&&e.setRequestHeader(f,a.headers[f]);return e.onerror=function(){new Error("Connection error");c&&c(error),d&&d(error)},setTimeout(function(){e.send(a.data)}),{done:function(a){return b=a,this},error:function(a){return c=a,this},finally:function(a){return d=a,this}}}}(window);
+    /* wait(<time>).done(...).wait(<time>).done(...).go() */
+    !function(a){a.wait=function(a){function c(a){return{done:function(e){return b.push({cb:e,time:a}),{wait:c,go:d}}}}function d(){if(b.length){var a=b.shift();setTimeout(function(){a.cb(),d()},a.time)}}var b=[];return c(a)}}(window);
+    </script>
+    </head>
+<body>
+    <button type="button" class="main_button">OPEN DOOR</button><br />
+    <input type="text" class="token" placeholder="token">
+
+    <script>
+        var mainBtn = document.querySelector('.main_button');
+        var tokenInput = document.querySelector('.token');
+        var token = tokenInput.value = localStorage.getItem('token');
+        var setText = function(text) {mainBtn.innerHTML = text;};
+        mainBtn.addEventListener('click', function() {
+            if (!token) {
+                setText('Missing token!<br/>(scroll down)');
+                return;
+            }
+
+            mainBtn.classList.add('active');
+            mainBtn.setAttribute('disabled', 'disabled');
+            setText('...sending...');
+
+            ajax({
+                url: '/token',
+                method: 'POST',
+                data: '',
+                headers: { token: token }
+            })
+            .done(function(r) {
+                console.log(r)
+                setText('Opening...');
+                wait(10000)
+                .done(function() { setText('Open...'); })
+                .wait(16000)
+                .done(function() { setText('Closing...'); })
+                .wait(10000)
+                .done(function() { setText('Closed!'); })
+                .wait(1000)
+                .done(function() {
+                    mainBtn.classList.remove('active');
+                    mainBtn.removeAttribute('disabled');
+                    setText('OPEN DOOR');
+                })
+                .go();
+            })
+            .error(function(error, response) {
+                mainBtn.classList.remove('active');
+                mainBtn.removeAttribute('disabled');
+                if (response.status == 401) {
+                    setText('Wrong token!!!');
+                } else {
+                    console.log('An error occured:', error);
+                }
+            })
+        });
+
+        tokenInput.addEventListener('input', function(event) {
+            localStorage.setItem('token', event.target.value);
+            token = event.target.value;
+        });
+    </script>
+</body>
+</html>

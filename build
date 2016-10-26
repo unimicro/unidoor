@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -d dist/ ] ; then
+    rm -rf dist/
+fi
+
+mkdir dist/
+
+GOOS=linux GOARCH=arm GOARM=6 go build door.go
+
+cp -r door add-token generate-cert index.html supervisor-door.conf dist/

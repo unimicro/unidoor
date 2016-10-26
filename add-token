@@ -1,0 +1,14 @@
+#! /bin/bash
+cd "$(dirname "$0")" # go to script folder
+
+if [ "$#" -lt 1 ]; then
+    echo "Please supply name of person as arguments"
+    exit 1
+fi
+
+echo -n $(openssl rand -base64 32)" " >> tokens
+echo $@ >> tokens
+
+echo "Generated:"
+tail -n1 tokens
+
