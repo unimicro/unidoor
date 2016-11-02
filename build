@@ -8,4 +8,4 @@ mkdir dist/
 
 GOOS=linux GOARCH=arm GOARM=6 go build door.go
 
-cp -r door add-token generate-cert index.html supervisor-door.conf dist/
+cp -r door add-token generate-cert index.html door.service dist/

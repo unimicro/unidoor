@@ -1,3 +1,5 @@
 #! /bin/bash
 
-scp -r dist/* zero:www && ssh zero 'supervisorctl restart door'
+ssh zero 'service door stop' \
+    && scp -r dist/* zero:www \
+    && ssh zero 'service door start'

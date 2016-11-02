@@ -4,7 +4,15 @@ Execute `generate-cert` to generate a self signed cert to get https.
 
 Execute `generate-token <name>` to generate a token for a new person.
 
-Start by symlinking the supervisor/door.conf script to supervisor and starting it there:
+Start by installing it as a service in a system that has systemd
+installed:
 
-    ln -s /root/www/supervisor-door.conf /etc/supervisor/conf.d/door.conf
+    systemctl enable /root/www/door.service
 
+And start the service:
+
+    systemctl start door.service
+
+And check the logs that everything went ok:
+
+    journalctl -u door.service # add -f to continuously print new entries
