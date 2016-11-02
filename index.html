@@ -71,7 +71,8 @@
                 if (response.status == 401) {
                     setText('Wrong token!!!');
                 } else {
-                    console.log('An error occured:', error);
+                    alert('An error occured: ' + error.message);
+                    setText('OPEN DOOR');
                 }
             })
         });
