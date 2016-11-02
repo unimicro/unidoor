@@ -50,7 +50,7 @@ func tokenHandler(w http.ResponseWriter, r *http.Request) {
 	if username, ok := tokens[token]; ok {
 		w.Write([]byte("OPEN"))
 		log.Print("Open for ", username)
-		openDoor()
+		go openDoor()
 	} else {
 		w.WriteHeader(401)
 	}
