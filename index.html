@@ -29,8 +29,6 @@
     <script>
     /* IE9+ ajax: ajax({url: '/', method: 'GET', data: '', headers: {key: 'value'}}) .done(...) .error(...).finally(...) */
     !function(a){a.ajax=function(a){var b,c,d,e=new XMLHttpRequest;e.open(a.method||"GET",a.url,!0),e.onload=function(){e.status>=200&&e.status<400?b&&b(e.responseText,e):c&&c(new Error(e.responseText),e),d&&d(e)};for(var f in a.headers)a.headers.hasOwnProperty(f)&&e.setRequestHeader(f,a.headers[f]);return e.onerror=function(){new Error("Connection error");c&&c(error),d&&d(error)},setTimeout(function(){e.send(a.data)}),{done:function(a){return b=a,this},error:function(a){return c=a,this},finally:function(a){return d=a,this}}}}(window);
-    /* wait(<time>).done(...).wait(<time>).done(...).go() */
-    !function(a){a.wait=function(a){function c(a){return{done:function(e){return b.push({cb:e,time:a}),{wait:c,go:d}}}}function d(){if(b.length){var a=b.shift();setTimeout(function(){a.cb(),d()},a.time)}}var b=[];return c(a)}}(window);
     </script>
     </head>
 <body>
@@ -61,19 +59,11 @@
             .done(function(r) {
                 console.log(r)
                 setText('Opening...');
-                wait(10000)
-                .done(function() { setText('Open...'); })
-                .wait(16000)
-                .done(function() { setText('Closing...'); })
-                .wait(10000)
-                .done(function() { setText('Closed!'); })
-                .wait(1000)
-                .done(function() {
+                setTimeout(function() {
                     mainBtn.classList.remove('active');
                     mainBtn.removeAttribute('disabled');
                     setText('OPEN DOOR');
-                })
-                .go();
+                },2250);
             })
             .error(function(error, response) {
                 mainBtn.classList.remove('active');
