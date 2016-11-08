@@ -1,7 +1,5 @@
 Requirements:
 
-Execute `generate-cert` to generate a self signed cert to get https.
-
 Execute `generate-token <name>` to generate a token for a new person.
 
 Start by installing it as a service in a system that has systemd

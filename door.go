@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"github.com/stianeikeland/go-rpio"
+	"golang.org/x/crypto/acme/autocert"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -66,11 +68,25 @@ func main() {
 	openDoorRemoteGPIO()
 	defer closeDoorRemoteGPIO()
 
+	certManager := autocert.Manager{
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist("unidoor.space"),
+		Cache:      autocert.DirCache("certs"),
+	}
+
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/token/", tokenHandler)
 	http.HandleFunc("/token", tokenHandler)
+
+	server := &http.Server{
+		Addr: ":" + port,
+		TLSConfig: &tls.Config{
+			GetCertificate: certManager.GetCertificate,
+		},
+	}
+
 	log.Print("Starting server on port ", port)
-	if err := http.ListenAndServeTLS(":"+port, "cert.pem", "key.pem", nil); err != nil {
+	if err := server.ListenAndServeTLS("", ""); err != nil {
 		log.Fatal(err)
 		os.Exit(3)
 	}
