@@ -16,6 +16,47 @@ var doorRemote = rpio.Pin(2)
 
 var tokens = make(map[string]string)
 
+const (
+	DOOR_LOG_PATH     = "access.log"
+	CERTIFICATE_CACHE = "certs"
+	DOMAIN            = "unidoor.space"
+	TOKENS_FILE_PATH  = "tokens"
+)
+
+func main() {
+	if len(os.Args) == 1 {
+		log.Fatal("You need to supply port as an argument")
+		os.Exit(1)
+	}
+	port := os.Args[1]
+
+	openDoorRemoteGPIO()
+	defer closeDoorRemoteGPIO()
+
+	certManager := autocert.Manager{
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist(DOMAIN),
+		Cache:      autocert.DirCache(CERTIFICATE_CACHE),
+	}
+
+	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/token/", tokenHandler)
+	http.HandleFunc("/token", tokenHandler)
+
+	server := &http.Server{
+		Addr: ":" + port,
+		TLSConfig: &tls.Config{
+			GetCertificate: certManager.GetCertificate,
+		},
+	}
+
+	log.Print("Starting server on port ", port)
+	if err := server.ListenAndServeTLS("", ""); err != nil {
+		log.Fatal(err)
+		os.Exit(3)
+	}
+}
+
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -34,7 +75,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func tokenHandler(w http.ResponseWriter, r *http.Request) {
-	tokens := parseTokenFile(readFile("tokens"))
+	tokens := parseTokenFile(readFile(TOKENS_FILE_PATH))
 	var token string
 	switch r.Method {
 	case "GET":
@@ -50,45 +91,14 @@ func tokenHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if username, ok := tokens[token]; ok {
-		w.Write([]byte("OPEN"))
-		log.Print("Open for ", username)
 		go openDoor()
+		w.Write([]byte("OPEN"))
+		appendFile(
+			DOOR_LOG_PATH,
+			time.Now().Format("2006-01-02T15:04:05")+" Open for "+username+"\n",
+		)
 	} else {
 		w.WriteHeader(401)
-	}
-}
-
-func main() {
-	if len(os.Args) == 1 {
-		log.Fatal("You need to supply port as an argument")
-		os.Exit(1)
-	}
-	port := os.Args[1]
-
-	openDoorRemoteGPIO()
-	defer closeDoorRemoteGPIO()
-
-	certManager := autocert.Manager{
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist("unidoor.space"),
-		Cache:      autocert.DirCache("certs"),
-	}
-
-	http.HandleFunc("/", rootHandler)
-	http.HandleFunc("/token/", tokenHandler)
-	http.HandleFunc("/token", tokenHandler)
-
-	server := &http.Server{
-		Addr: ":" + port,
-		TLSConfig: &tls.Config{
-			GetCertificate: certManager.GetCertificate,
-		},
-	}
-
-	log.Print("Starting server on port ", port)
-	if err := server.ListenAndServeTLS("", ""); err != nil {
-		log.Fatal(err)
-		os.Exit(3)
 	}
 }
 
@@ -112,6 +122,15 @@ func readFile(path string) []byte {
 		os.Exit(10)
 	}
 	return data
+}
+
+func appendFile(path string, text string) {
+	if f, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660); err == nil {
+		defer f.Close()
+		f.Write([]byte(text))
+	} else {
+		log.Fatal(err)
+	}
 }
 
 func parseTokenFile(tokenFile []byte) map[string]string {
