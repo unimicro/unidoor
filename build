@@ -6,6 +6,6 @@ fi
 
 mkdir dist/
 
-GOOS=linux GOARCH=arm GOARM=6 go build door.go -o dist/door
+GOOS=linux GOARCH=arm GOARM=6 go build -o dist/door.new door.go
 
 cp -r add-token index.html door.service dist/

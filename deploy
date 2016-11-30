@@ -1,5 +1,4 @@
 #! /bin/bash
 
-ssh zero 'service door stop' \
-    && scp -r dist/* zero:www \
-    && ssh zero 'service door start'
+scp -r dist/* zero:www \
+    && ssh zero 'service door stop && mv ~/www/door{.new,} && service door start'
