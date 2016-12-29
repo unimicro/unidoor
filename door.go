@@ -14,8 +14,6 @@ import (
 
 var doorRemote = rpio.Pin(2)
 
-var tokens = make(map[string]string)
-
 const (
 	DOOR_LOG_PATH     = "access.log"
 	CERTIFICATE_CACHE = "certs"
