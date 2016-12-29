@@ -4,7 +4,8 @@
     <style>
         body{
             margin: 0;
-            padding: 0
+            padding: 0;
+            visibility: hidden;
         }
         .main_button {
             border-radius: 50%;
@@ -33,6 +34,7 @@
     <button type="button" class="main_button">OPEN DOOR</button><br />
     <input type="text" class="token" placeholder="token">
     <script>
+        var body = document.querySelector('body');
         var mainBtn = document.querySelector('.main_button');
         var tokenInput = document.querySelector('.token');
         var token = tokenInput.value = localStorage.getItem('token');
@@ -75,6 +77,8 @@
             localStorage.setItem('token', event.target.value);
             token = event.target.value;
         });
+
+        body.style.visibility = 'visible';
     </script>
 </body>
 </html>
