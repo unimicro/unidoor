@@ -17,8 +17,6 @@
         }
         .main_button.active {
             background-color: #ED4337;
-        }
-        .main_button[disabled] {
             color: white;
         }
         .token {
@@ -34,7 +32,6 @@
 <body>
     <button type="button" class="main_button">OPEN DOOR</button><br />
     <input type="text" class="token" placeholder="token">
-
     <script>
         var mainBtn = document.querySelector('.main_button');
         var tokenInput = document.querySelector('.token');
@@ -47,7 +44,6 @@
             }
 
             mainBtn.classList.add('active');
-            mainBtn.setAttribute('disabled', 'disabled');
             setText('...sending...');
 
             ajax({
@@ -61,13 +57,11 @@
                 setText('Opening...');
                 setTimeout(function() {
                     mainBtn.classList.remove('active');
-                    mainBtn.removeAttribute('disabled');
                     setText('OPEN DOOR');
                 },2250);
             })
             .error(function(error, response) {
                 mainBtn.classList.remove('active');
-                mainBtn.removeAttribute('disabled');
                 if (response.status == 401) {
                     setText('Wrong token!!!');
                 } else {
