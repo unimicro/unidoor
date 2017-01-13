@@ -26,8 +26,9 @@
         }
     </style>
     <script>
-    /* IE9+ ajax: ajax({url: '/', method: 'GET', data: '', headers: {key: 'value'}}) .done(...) .error(...).finally(...) */
-    !function(a){a.ajax=function(a){var b,c,d,e=new XMLHttpRequest;e.open(a.method||"GET",a.url,!0),e.onload=function(){e.status>=200&&e.status<400?b&&b(e.responseText,e):c&&c(new Error(e.responseText),e),d&&d(e)};for(var f in a.headers)a.headers.hasOwnProperty(f)&&e.setRequestHeader(f,a.headers[f]);return e.onerror=function(){new Error("Connection error");c&&c(error),d&&d(error)},setTimeout(function(){e.send(a.data)}),{done:function(a){return b=a,this},error:function(a){return c=a,this},finally:function(a){return d=a,this}}}}(window);
+    /* IE9+ ajax: atto({url: '/', method: 'GET', data: '', headers: {key: 'value'}}) .done(...) .error(...).finally(...) */
+    !function(a){a.atto=function(a){var b,c,d,e=new XMLHttpRequest;e.open(a.method||"GET",a.url,!0),e.onload=function(){e.status>=200&&e.status<400?b&&b(e.responseText,e):c&&c(new Error(e.statusText),e),d&&d(null,e)};for(var f in a.headers)a.headers.hasOwnProperty(f)&&e.setRequestHeader(f,a.headers[f]);return e.onerror=function(){var a=new Error("Connection error");c&&c(a,{}),d&&d(a)},setTimeout(function(){e.send(a.data)}),{done:function(a){return b=a,this},error:function(a){return c=a,this},finally:function(a){return d=a,this}}}}(window);
+
     </script>
     </head>
 <body>
@@ -48,7 +49,7 @@
             mainBtn.classList.add('active');
             setText('...sending...');
 
-            ajax({
+            atto({
                 url: '/token',
                 method: 'POST',
                 data: '',
