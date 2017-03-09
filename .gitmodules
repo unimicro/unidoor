@@ -1,0 +1,6 @@
+[submodule "vendor/github.com/stianeikeland/go-rpio"]
+	path = vendor/github.com/stianeikeland/go-rpio
+	url = https://github.com/stianeikeland/go-rpio
+[submodule "vendor/golang.org/x/crypto"]
+	path = vendor/golang.org/x/crypto
+	url = https://github.com/golang/crypto
