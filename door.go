@@ -2,23 +2,24 @@ package main
 
 import (
 	"crypto/tls"
-	"github.com/stianeikeland/go-rpio"
-	"golang.org/x/crypto/acme/autocert"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/stianeikeland/go-rpio"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 var doorRemote = rpio.Pin(2)
 
 const (
-	DOOR_LOG_PATH     = "access.log"
-	CERTIFICATE_CACHE = "certs"
-	DOMAIN            = "unidoor.space"
-	TOKENS_FILE_PATH  = "tokens"
+	doorLogPath      = "access.log"
+	certificateCache = "certs"
+	domain           = "unidoor.space"
+	tokensFilePath   = "tokens"
 )
 
 func main() {
@@ -28,13 +29,13 @@ func main() {
 	}
 	port := os.Args[1]
 
-	openDoorRemoteGPIO()
-	defer closeDoorRemoteGPIO()
+	openGPIODoorRemote()
+	defer closeGPIODoorRemote()
 
 	certManager := autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(DOMAIN),
-		Cache:      autocert.DirCache(CERTIFICATE_CACHE),
+		HostPolicy: autocert.HostWhitelist(domain),
+		Cache:      autocert.DirCache(certificateCache),
 	}
 
 	http.HandleFunc("/", rootHandler)
@@ -61,7 +62,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "text/html")
 		indexFile, err := ioutil.ReadFile("index.html")
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 			w.WriteHeader(500)
 			w.Write([]byte(err.Error()))
 		} else {
@@ -73,7 +74,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func tokenHandler(w http.ResponseWriter, r *http.Request) {
-	tokens := parseTokenFile(readFile(TOKENS_FILE_PATH))
+	tokens := parseTokenFile(readFile(tokensFilePath))
 	var token string
 	switch r.Method {
 	case "GET":
@@ -92,7 +93,7 @@ func tokenHandler(w http.ResponseWriter, r *http.Request) {
 		go openDoor()
 		w.Write([]byte("OPEN"))
 		appendFile(
-			DOOR_LOG_PATH,
+			doorLogPath,
 			time.Now().Format("2006-01-02T15:04:05")+" Open for "+username+"\n",
 		)
 	} else {
@@ -100,7 +101,7 @@ func tokenHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func openDoorRemoteGPIO() {
+func openGPIODoorRemote() {
 	if err := rpio.Open(); err != nil {
 		log.Fatal(err)
 		os.Exit(2)
@@ -109,7 +110,7 @@ func openDoorRemoteGPIO() {
 	doorRemote.High()
 }
 
-func closeDoorRemoteGPIO() {
+func closeGPIODoorRemote() {
 	rpio.Close()
 }
 
