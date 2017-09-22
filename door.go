@@ -6,20 +6,23 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/stianeikeland/go-rpio"
+	rpio "github.com/stianeikeland/go-rpio"
 	"golang.org/x/crypto/acme/autocert"
 )
 
 var doorRemote = rpio.Pin(2)
 
 const (
-	doorLogPath      = "access.log"
-	certificateCache = "certs"
-	domain           = "unidoor.space"
-	tokensFilePath   = "tokens"
+	doorLogPath       = "access.log"
+	certificateCache  = "certs"
+	domain            = "unidoor.space"
+	tokensFilePath    = "tokens"
+	secondsToTransmit = 6
+	secondsInAnHour   = 3600
 )
 
 func main() {
@@ -60,6 +63,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		w.Header().Set("Content-type", "text/html")
+		w.Header().Set("Cache-Control", "max-age="+strconv.Itoa(12*secondsInAnHour))
 		indexFile, err := ioutil.ReadFile("index.html")
 		if err != nil {
 			log.Println(err)
@@ -92,7 +96,7 @@ func tokenHandler(w http.ResponseWriter, r *http.Request) {
 	if username, ok := tokens[token]; ok {
 		go openDoor()
 		w.Write([]byte("OPEN"))
-		appendFile(
+		go appendFile(
 			doorLogPath,
 			time.Now().Format("2006-01-02T15:04:05")+" Open for "+username+"\n",
 		)
@@ -146,7 +150,10 @@ func parseTokenFile(tokenFile []byte) map[string]string {
 }
 
 func openDoor() {
+	if doorRemote.Read() == rpio.Low {
+		return
+	}
 	doorRemote.Low()
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * secondsToTransmit)
 	doorRemote.High()
 }
