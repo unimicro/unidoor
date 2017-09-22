@@ -45,6 +45,8 @@ func main() {
 	http.HandleFunc("/token/", tokenHandler)
 	http.HandleFunc("/token", tokenHandler)
 
+	go http.ListenAndServe(":80", http.HandlerFunc(redirectToHTTPS))
+
 	server := &http.Server{
 		Addr: ":" + port,
 		TLSConfig: &tls.Config{
@@ -57,6 +59,10 @@ func main() {
 		log.Fatal(err)
 		os.Exit(3)
 	}
+}
+
+func redirectToHTTPS(w http.ResponseWriter, req *http.Request) {
+	http.Redirect(w, req, "https://"+req.Host+req.URL.String(), http.StatusMovedPermanently)
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
