@@ -8,13 +8,17 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	rpio "github.com/stianeikeland/go-rpio"
 	"golang.org/x/crypto/acme/autocert"
 )
 
-var doorRemote = rpio.Pin(2)
+var (
+	doorRemote = rpio.Pin(2)
+	lock       sync.Mutex
+)
 
 const (
 	doorLogPath       = "access.log"
@@ -156,10 +160,9 @@ func parseTokenFile(tokenFile []byte) map[string]string {
 }
 
 func openDoor() {
-	if doorRemote.Read() == rpio.Low {
-		return
-	}
+	lock.Lock()
 	doorRemote.Low()
 	time.Sleep(time.Second * secondsToTransmit)
 	doorRemote.High()
+	lock.Unlock()
 }
