@@ -2,11 +2,11 @@ package main
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -21,12 +21,12 @@ var (
 )
 
 const (
-	doorLogPath       = "access.log"
-	certificateCache  = "certs"
-	domain            = "unidoor.space"
-	tokensFilePath    = "tokens"
-	secondsToTransmit = 6
-	secondsInAnHour   = 3600
+	doorLogPath      = "access.log"
+	certificateCache = "certs"
+	domain           = "unidoor.space"
+	tokensFilePath   = "tokens"
+	transmitTime     = time.Millisecond * 1200
+	cacheTime        = time.Hour * 3600
 )
 
 func main() {
@@ -73,7 +73,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		w.Header().Set("Content-type", "text/html")
-		w.Header().Set("Cache-Control", "max-age="+strconv.Itoa(12*secondsInAnHour))
+		w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%.0f", cacheTime.Seconds()))
 		indexFile, err := ioutil.ReadFile("index.html")
 		if err != nil {
 			log.Println(err)
@@ -162,7 +162,7 @@ func parseTokenFile(tokenFile []byte) map[string]string {
 func openDoor() {
 	lock.Lock()
 	doorRemote.Low()
-	time.Sleep(time.Second * secondsToTransmit)
+	time.Sleep(transmitTime)
 	doorRemote.High()
 	lock.Unlock()
 }
