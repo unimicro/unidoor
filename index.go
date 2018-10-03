@@ -1,3 +1,6 @@
+package main
+
+var indexFile = []byte(`
 <html>
 <head>
     <title>Open garage door</title>
@@ -90,3 +93,4 @@
     </script>
 </body>
 </html>
+`)

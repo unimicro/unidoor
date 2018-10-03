@@ -74,14 +74,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		w.Header().Set("Content-type", "text/html")
 		w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%.0f", cacheTime.Seconds()))
-		indexFile, err := ioutil.ReadFile("index.html")
-		if err != nil {
-			log.Println(err)
-			w.WriteHeader(500)
-			w.Write([]byte(err.Error()))
-		} else {
-			w.Write(indexFile)
-		}
+		w.Write(indexFile)
 	default:
 		w.WriteHeader(404)
 	}
