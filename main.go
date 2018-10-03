@@ -26,7 +26,7 @@ const (
 	domain           = "unidoor.space"
 	tokensFilePath   = "tokens"
 	transmitTime     = time.Millisecond * 1200
-	cacheTime        = time.Hour * 3600
+	cacheTime        = time.Hour * 24
 )
 
 func main() {
