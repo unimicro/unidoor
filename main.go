@@ -25,8 +25,8 @@ const (
     certificateCache = "certs"
     domain           = "unidoor.space"
     tokensFilePath   = "tokens"
-    transmitTime     = time.Millisecond * 1200
-    cacheTime        = time.Hour * 24
+    transmitTime     = 12 * time.Second
+    cacheTime        = 24 * time.Hour
 )
 
 func main() {
