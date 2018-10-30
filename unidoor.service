@@ -1,0 +1,12 @@
+[Unit]
+Description=unidoor
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/unidoor/
+ExecStart=/srv/unidoor/unidoor
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

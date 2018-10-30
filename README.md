@@ -1,16 +1,20 @@
-Requirements:
+# Setup:
 
-Execute `generate-token <name>` to generate a token for a new person.
+Setup ssh autologin with the name "zero" in ~/.ssh/config
 
-Start by installing it as a service in a system that has systemd
-installed:
+Run "./setup.sh"
 
-    systemctl enable /root/www/door.service
+Run "./build.sh && ./deploy.sh"
 
-And start the service:
+If you have another name for the server in ssh/config you can put that after the deploy script,
+i.e. `./build.sh && ./deploy.sh <my server name>`
 
-    systemctl start door.service
+PS: This project uses git submodules for it's go dependencies.
 
-And check the logs that everything went ok:
+# Usage:
 
-    journalctl -u door.service # add -f to continuously print new entries
+Execute `add-token <name>` to generate a token for a new person.
+
+Check the logs that works ok:
+
+    journalctl -u unidoor # add -f to continuously print new entries
